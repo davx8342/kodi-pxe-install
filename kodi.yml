@@ -52,6 +52,9 @@
         dest=/etc/X11/Xwrapper.config
         line='needs_root_rights=yes'
     - lineinfile:
+        dest=/etc/modprob.d/blacklist.conf
+        line='blacklist ite_cir'
+    - lineinfile:
         dest=/etc/lirc/lircd.conf
         line='include "/usr/share/lirc/remotes/mceusb/lircd.conf.mceusb"'
     - replace:
