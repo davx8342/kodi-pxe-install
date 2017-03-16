@@ -43,7 +43,7 @@
       - xserver-xorg-legacy
       - xorg
       - dbus-x11
-      - polkit-1
+      - policykit-1
     - replace:
         dest=/etc/X11/Xwrapper.config
         regexp='console'
