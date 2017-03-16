@@ -51,6 +51,25 @@
     - lineinfile:
         dest=/etc/X11/Xwrapper.config
         line='needs_root_rights=yes'
+    - lineinfile:
+        dest=/etc/lirc/lircd.conf
+        line='include "/usr/share/lirc/remotes/mceusb/lircd.conf.mceusb"'
+    - replace:
+        dest=/etc/lirc/hardware.conf
+        regexp='REMOTE_MODULES=""'
+        replace='REMOTE_MODULES="lirc_dev mceusb"'
+    - replace:
+        dest=/etc/lirc/hardware.conf
+        regexp='REMOTE_LIRCD_CONF=""'
+        replace='REMOTE_LIRCD_CONF="mceusb/lircd.conf.mceusb"'
+    - replace:
+        dest=/etc/lirc/hardware.conf
+        regexp='REMOTE_DEVICE=""'
+        replace='REMOTE_DEVICE="/dev/lirc0"'
+    - replace:
+        dest=/etc/lirc/hardware.conf
+        regexp='START_LIRCD="false"'
+        replace='START_LIRCD="true"'
     - name: add kodi user to groups
       user: name=kodi
             groups=cdrom,audio,video,plugdev,users,dialout,dip,input
