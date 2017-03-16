@@ -1,0 +1,13 @@
+# https://realguess.net/2014/12/21/ansible-update-servers-to-the-latest-and-reboot/
+# Upgrade Debian/Ubuntu based systems and reboot if necessary.
+---
+- hosts: all
+  tasks:
+   - name: updates a server
+     apt: update_cache=yes upgrade=dist
+#- name: Check if a reboot is required
+#  register: file
+#  stat: path=/var/run/reboot-required get_md5=no
+#- name: Reboot the server
+#  command: /sbin/reboot
+#  when: file.stat.exists == true

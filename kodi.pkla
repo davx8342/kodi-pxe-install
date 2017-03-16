@@ -1,0 +1,6 @@
+[kodi user]
+Identity=unix-user:kodi
+Action=org.freedesktop.login1.*
+ResultAny=yes
+ResultInactive=no
+ResultActive=yes

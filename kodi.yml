@@ -1,0 +1,57 @@
+# configure what we need to run kodi
+---
+- hosts: all
+  tasks:
+    - replace:
+        dest=/etc/network/interfaces
+        regexp='iface eth0 inet dhcp'
+        replace='iface eth0 inet static'
+    - lineinfile: dest=/etc/network/interfaces
+                  line="address 192.168.1.10"
+                  insertafter="iface eth0 inet static"
+    - lineinfile: dest=/etc/network/interfaces
+                  line='netmask 255.255.255.0'
+                  insertafter="iface eth0 inet static"
+    - lineinfile: dest=/etc/network/interfaces
+                  line='gateway 192.168.1.254'
+                  insertafter="iface eth0 inet static"
+    - lineinfile: dest=/etc/network/interfaces
+                  line='dns-nameservers 8.8.8.8'
+                  insertafter="iface eth0 inet static"
+    - lineinfile: dest=/etc/network/interfaces
+                  line='dns-search example.com'
+                  insertafter="iface eth0 inet static"
+#
+# optional for bare metal restore
+#
+#    - lineinfile:
+#        dest=/etc/fstab
+#        line='192.168.1.1:/volume1/backup-kodi /backup nfs rw,noauto 0 0'
+#        backup=yes
+#    - name: Create /backup
+#      file: path=/backup state=directory
+    - name: Install software-properties-common
+      apt: pkg=software-properties-common state=installed
+    - name: Add kodi repo
+      apt_repository: repo='ppa:team-xbmc/ppa' state=present update_cache=true
+    - name: install kodi and dependencies
+      apt:  pkg={{item}} state=installed
+      with_items:
+      - nfs-common
+      - kodi
+      - x11-common
+      - xserver-xorg-legacy
+      - xorg
+      - dbus-x11
+      - polkit-1
+    - replace:
+        dest=/etc/X11/Xwrapper.config
+        regexp='console'
+        replace='anybody'
+    - lineinfile:
+        dest=/etc/X11/Xwrapper.config
+        line='needs_root_rights=yes'
+    - name: add kodi user to groups
+      user: name=kodi
+            groups=cdrom,audio,video,plugdev,users,dialout,dip,input
+            append=yes

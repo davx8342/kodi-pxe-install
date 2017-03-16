@@ -1,0 +1,73 @@
+#!/bin/sh -e
+#
+# rc.local
+#
+
+if [ ! -d /sys/class/net/eth0 ]; then
+   sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"/GRUB_CMDLINE_LINUX=""/g' /etc/default/grub
+   sed -i 's/GRUB_CMDLINE_LINUX=.*/GRUB_CMDLINE_LINUX="biosdevname=0 net.ifnames=0"/g' /etc/default/grub
+   update-grub
+   reboot
+fi
+
+#
+# sort out our sources, and update apt
+#
+wget http://192.168.1.1/ubuntu/kodi/sources.list -O /etc/apt/sources.list
+apt-get update
+
+#
+# fetch assets
+#
+wget http://192.168.1.1/ubuntu/kodi/updates.yml -O /tmp/updates.yml
+wget http://192.168.1.1/ubuntu/kodi/kodi.yml -O /tmp/kodi.yml
+wget http://192.168.1.1/ubuntu/kodi/kodi.service -O /etc/systemd/system/kodi.service
+wget http://192.168.1.1/ubuntu/kodi/kodi.conf -O /etc/init/kodi.conf
+
+#
+# we do this here rather than in ansible because we need to surpress
+# the interactive questions
+#
+DEBIAN_FRONTEND=noninteractive apt-get -y install lirc
+
+#
+# run ansible which does our config and package work
+#
+apt-get -y install ansible
+echo localhost ansible_connection=local >> /etc/ansible/hosts
+ansible-playbook /tmp/updates.yml
+ansible-playbook /tmp/kodi.yml
+
+#
+# enable kodi and plexmediaserver
+#
+systemctl enable kodi
+
+update-grub
+
+#
+# policy kit, we need this to allow users to power off
+#
+wget http://172.19.20.1/ubuntu/kodi/kodi.pkla -O /etc/polkit-1/localauthority/50-local.d/kodi.pkla
+
+#
+# we rsync in our backups if we don't already have these files in place
+# this is purely optional though, if you're doing a bare metal restore
+#
+#mount /backup
+#if [ ! -d /home/kodi/.kodi ]; then
+#   echo no .kodi in home directory, restoring from backup
+#   rsync -avx /backup/home/kodi /home/.
+#fi
+#rsync -avx --delete /backup/etc/ssh /etc/.
+#umount /backup
+
+#
+# we clean up after ourselves, restore a stock rc.local
+#
+   wget http://192.168.1.1/ubuntu/kodi/rc.local.default -O /etc/rc.local
+   chmod 755 /etc/rc.local
+   reboot
+
+exit 0
+
