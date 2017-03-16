@@ -39,6 +39,10 @@ this one you're going to be spending a bit of time googling and
 setting it up and wondering if it's all worth it. I'm including an
 example dhcpd.conf that you can edit and setup for your home network.
 
+Last one. I have a USB Media Centre remote. This is the one I setup in 
+the ansible playbook. If you need to use a different one, edit this in
+kodi.yml for the one you have.
+
 That said, lets get started!
 
 Setting up tftpd
